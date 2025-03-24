@@ -1,12 +1,30 @@
 import streamlit as st
 from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.preprocessing.image import img_to_array
 import numpy as np
-import os
+import requests
 from PIL import Image
+import os
+
+# Google Drive file ID (replace this with your actual file ID)
+MODEL_URL = "https://drive.google.com/uc?id=1EgQFY9lGliSDX03BOJ4sv8nAgupmhONP&export=download"
+MODEL_PATH = "model.h5"
+
+# Function to download the model dynamically if it's not present locally
+def download_model():
+    if not os.path.exists(MODEL_PATH):
+        with st.spinner("Downloading model... Please wait."):
+            response = requests.get(MODEL_URL, stream=True)
+            with open(MODEL_PATH, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            st.success("Model downloaded successfully!")
+
+# Download the model if not already downloaded
+download_model()
 
 # Load the trained model
-model = load_model("model.h5")  # Make sure model.h5 is in the same folder
+model = load_model(MODEL_PATH)
 
 # Set image size
 IMAGE_SIZE = 150
@@ -41,5 +59,5 @@ if uploaded_file is not None:
     with st.spinner("Analyzing image..."):
         result, confidence = predict_tumor(image)
 
-    st.success(f"**Result:** {result}")
-    st.info(f"**Confidence:** {confidence * 100:.2f}%")
+    st.success(f"*Result:* {result}")
+    st.info(f"*Confidence:* {confidence * 100:.2f}%")
