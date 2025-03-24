@@ -8,3 +8,4 @@ seaborn
 gunicorn
 streamlit
 Pillow
+gdown
